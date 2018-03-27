@@ -1,0 +1,159 @@
+//#include <vtkSphereSource.h>
+//#include <vtkPolyData.h>
+//#include <vtkSmartPointer.h>
+//#include <vtkPolyDataMapper.h>
+//#include <vtkActor.h>
+//#include <vtkRenderWindow.h>
+//#include <vtkRenderer.h>
+//#include <vtkRenderWindowInteractor.h>
+//#include <vtkPolyDataWriter.h>
+//#include <vtkPolygon.h>
+//#include <vtkTriangle.h>
+//#include <vtkPolyLine.h>
+//#include <vtkUnstructuredGrid.h>
+//#include <vtkDataSetMapper.h>
+//#include <vtkProperty.h>
+//#include <vtkIdList.h>
+//#include <vtkCallbackCommand.h>
+//#include <vtkRendererCollection.h>
+//#include <vtkActorCollection.h>
+//#include <vtkPointData.h>
+//#include "vtkAutoInit.h"   
+//#include <vtkCellData.h>
+//#include <vtkPolyLine.h>
+//#include <vtkLine.h>
+//#include <iostream>
+//VTK_MODULE_INIT(vtkRenderingOpenGL2); // VTK was built with vtkRenderingOpenGL2  
+//VTK_MODULE_INIT(vtkInteractionStyle);
+//vtkSmartPointer<vtkPoints> points = vtkSmartPointer<vtkPoints>::New();
+//vtkSmartPointer<vtkCellArray> cells = vtkSmartPointer<vtkCellArray>::New();
+//vtkSmartPointer<vtkPolyLine> polyline = vtkSmartPointer<vtkPolyLine>::New();
+//
+//
+//long paintCounts = 0;
+//void MyCallBackFunc(vtkObject*, unsigned long eid, void* clientdata, void *calldata)
+//{
+//	std::cout << "you have " << ++paintCounts << "times." << std::endl;
+//}
+//
+//class CommandMyCallBack : public vtkCommand
+//{
+//public:
+//	vtkTypeMacro(CommandMyCallBack, vtkCommand);
+//
+//	static CommandMyCallBack *New()
+//	{
+//		return new CommandMyCallBack();
+//	}
+//
+//	void Execute(vtkObject * caller, unsigned long vtkNotUsed(eventId), void *vtkNotUsed(callData))
+//	{
+//		vtkRenderWindowInteractor* rwI = dynamic_cast<vtkRenderWindowInteractor*>(caller);
+//		vtkRenderWindow* tmpRW = rwI->GetRenderWindow();
+//
+//		/*vtkRendererCollection* tmpRenderers = tmpRW->GetRenderers();
+//		std::cout << tmpRenderers->GetClassName() << std::endl;
+//		vtkRenderer* tmpRenderer = tmpRenderers->GetFirstRenderer();
+//		std::cout << tmpRenderer->GetClassName() << std::endl;
+//		vtkActorCollection* tmpActors = tmpRenderer->GetActors();
+//		std::cout << tmpActors->GetClassName() a<< std::endl;
+//		vtkActor* tmpActor = dynamic_cast<vtkActor*>(tmpActors->GetItemAsObject(0));
+//		std::cout << tmpActor->GetClassName() << std::endl;
+//		vtkPolyDataMapper* tmpMapper = dynamic_cast<vtkPolyDataMapper*>(tmpActor->GetMapper());
+//		std::cout << tmpMapper->GetClassName() << std::endl;
+//		vtkPolyData* tmpPolyData = dynamic_cast<vtkPolyData*>(tmpMapper->GetInput());
+//		std::cout << tmpPolyData->GetClassName() << std::endl;
+//		vtkCellArray* tmpCells = dynamic_cast<vtkCellArray*>(tmpPolyData->GetLines());
+//		vtkPoints* tmpPoints = dynamic_cast<vtkPoints*>(tmpPolyData->GetPoints());
+//		std::cout << tmpCells->GetClassName() << std::endl;
+//		std::cout << tmpCells->GetNumberOfCells() << std::endl;*/
+//
+//
+//		points->InsertNextPoint((float)(m_i), (float)(m_i*sin(m_i*0.01)), 0);
+//		polyline->GetPointIds()->InsertNextId(m_i - 1);
+//
+//		cells->Initialize();
+//		cells->InsertNextCell(polyline);
+//		cells->Modified();
+//		m_i++;
+//		tmpRW->Render();
+//
+//	}
+//private:
+//	int m_i = 50;
+//};
+//
+//int main(int, char *[])
+//{
+//	vtkSmartPointer<vtkPoints> points = vtkSmartPointer<vtkPoints>::New();
+//	vtkSmartPointer<vtkCellArray> vertices = vtkSmartPointer<vtkCellArray>::New();
+//	int max = 50;
+//	for (unsigned int i = 0; i < max; ++i)
+//	{
+//		//vtkIdType pid[1];
+//		points->InsertNextPoint((float)(i), (float)(i*sin(i*0.01)), 0);
+//		/*vertices->InsertNextCell(1, pid);*/
+//	}
+//	
+//	//vtkSmartPointer<vtkPolyLine> polyline = vtkSmartPointer<vtkPolyLine>::New();
+//	for (int i = 0; i < max - 1; ++i)
+//	{
+//		polyline->GetPointIds()->InsertNextId(i);
+//	}
+//
+//	//vtkSmartPointer<vtkCellArray> cells = vtkSmartPointer<vtkCellArray>::New();
+//	cells->InsertNextCell(polyline);
+//
+//	vtkSmartPointer<vtkPolyData> line = vtkSmartPointer<vtkPolyData>::New();
+//	line->SetPoints(points);
+//	line->SetLines(cells);
+//	line->BuildLinks();
+//	vtkCellArray* linesVertices = line->GetLines();
+//	vtkPoints* linePoints = line->GetPoints();
+//
+//	//vtkSmartPointer<vtkUnstructuredGrid> grid = vtkSmartPointer<vtkUnstructuredGrid>::New();
+//	//grid->Allocate(1, 1);
+//	//grid->InsertNextCell(lines->GetCellType(), lines->GetPointIds());
+//	//grid->SetPoints(points);
+//
+//
+//	vtkSmartPointer<vtkPolyDataMapper> mapper = vtkSmartPointer<vtkPolyDataMapper>::New();
+//	mapper->SetInputData(line);
+//	mapper->Update();
+//
+//	vtkSmartPointer<vtkActor> actor = vtkSmartPointer<vtkActor>::New();
+//	actor->SetMapper(mapper);
+//	actor->GetProperty()->SetColor(1.0, 0.0, 0.0);
+//
+//	vtkSmartPointer<vtkRenderer> renderer = vtkSmartPointer<vtkRenderer>::New();
+//	renderer->AddActor(actor);
+//
+//	vtkSmartPointer<vtkRenderWindow> renderWindow = vtkSmartPointer<vtkRenderWindow>::New();
+//	renderWindow->AddRenderer(renderer);
+//
+//	//vtkSmartPointer<vtkCallbackCommand> updateCallback = vtkSmartPointer<vtkCallbackCommand>::New();
+//	//updateCallback->SetCallback(MyCallBackFunc);
+//
+//	vtkSmartPointer<vtkRenderWindowInteractor> renderWindowInteractor = vtkSmartPointer<vtkRenderWindowInteractor>::New();
+//	renderWindowInteractor->SetRenderWindow(renderWindow);
+//	renderWindowInteractor->Initialize();
+//	renderWindowInteractor->CreateRepeatingTimer(100);
+//	
+//	vtkSmartPointer<CommandMyCallBack> timerCalback = vtkSmartPointer<CommandMyCallBack>::New();
+//
+//	renderWindowInteractor->AddObserver(vtkCommand::TimerEvent, timerCalback);
+//
+//	
+//	//vtkUnstructuredGrid* tmpGrid = dynamic_cast<vtkUnstructuredGrid*>(tmpMapper->GetInput());
+//	//vtkPolyLine* tmpPointData = dynamic_cast<vtkPolyLine*>(tmpGrid->Get);
+//	//vtkDataCell
+//	
+//	//tmpPointData = tmpGrid->GetPointData();
+//	//std::cout << tmpPointData->GetNumberOfArrays() << std::endl;
+//	//renderWindowInteractor->GetRenderWindow()->GetRenderers()->GetFirstRenderer()->GetActors()->GetNextActor()->GetMapper()->GetInput();
+//
+//	//renderWindowInteractor->AddObserver(vtkCommand::TimerEvent, updateCallback);
+//	renderWindowInteractor->Render();
+//	renderWindowInteractor->Start();
+//	
+//}

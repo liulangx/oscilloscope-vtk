@@ -1,0 +1,115 @@
+#include <vtkAutoInit.h>
+VTK_MODULE_INIT(vtkRenderingOpenGL2);
+//VTK_MODULE_INIT(vtkRenderingContextOpenGL2);
+//VTK_MODULE_INIT(vtkRenderingVolumeOpenGL2);
+VTK_MODULE_INIT(vtkInteractionStyle);
+//VTK_MODULE_INIT(vtkRenderingFreeType);
+
+#include <vtkSmartPointer.h>
+#include <vtkRenderWindow.h>
+#include <vtkRenderer.h>
+#include <vtkConeSource.h>
+#include <vtkPolyDataMapper.h>
+#include <vtkActor.h>
+#include <vtkRenderWindowInteractor.h>
+#include <vtkProperty.h>
+#include <vtkPoints.h>
+#include <vtkPolyLine.h>
+#include <vtkProgrammableFilter.h>
+#include <vtkCallbackCommand.h>
+#include <vtkPolyDataStreamer.h>
+#include <vtkProgrammableDataObjectSource.h>
+
+
+vtkSmartPointer<vtkProgrammableDataObjectSource> pDOS = vtkSmartPointer<vtkProgrammableDataObjectSource>::New();
+vtkSmartPointer<vtkRenderer> renderer = vtkSmartPointer<vtkRenderer>::New();
+
+vtkSmartPointer<vtkPoints> points = vtkSmartPointer<vtkPoints>::New();
+vtkSmartPointer<vtkPolyLine> polyLine = vtkSmartPointer<vtkPolyLine>::New();
+
+int numOfPoints = 0;
+double t = 0;
+
+void NextPoint() {
+	double x = t * cos(t);
+	double y = t * sin(t);
+	points->InsertNextPoint(x, y, t);
+	polyLine->GetPointIds()->InsertNextId(numOfPoints);
+
+	numOfPoints++;
+	t += 0.1;
+}
+
+void generateEllipse(void *caller) {
+	vtkProgrammableDataObjectSource *pDOS = vtkProgrammableDataObjectSource::SafeDownCast((vtkObjectBase*)caller);
+
+	vtkSmartPointer<vtkCellArray> cells = vtkSmartPointer<vtkCellArray>::New();
+	cells->InsertNextCell(polyLine);
+
+	vtkSmartPointer<vtkPolyData> polyData = vtkSmartPointer<vtkPolyData>::New();
+	polyData->SetPoints(points);
+	polyData->SetLines(cells);
+
+	pDOS->SetOutput(polyData);
+}
+
+
+int counter2 = 0;
+void TimerCallbackFunction(vtkObject* caller, long unsigned int vtkNotUsed(eventId), void* clientData, void* vtkNotUsed(callData)) {
+	cout << "timer callback: " << counter2 << endl;
+
+	// To avoid globals we can implement this later... 
+	//  vtkSmartPointer<vtkProgrammableDataObjectSource> pDOS =
+	//      static_cast<vtkProgrammableDataObjectSource*>(clientData);
+
+	vtkRenderWindowInteractor *rwi =
+		static_cast<vtkRenderWindowInteractor*>(caller);
+
+	NextPoint();
+
+	pDOS->Modified();
+	rwi->Render();
+	renderer->ResetCamera(); // Optional: Reposition Camera, so it displays the whole object
+
+	counter2++;
+}
+
+
+
+int main(int argc, char** argv) {
+	vtkSmartPointer<vtkRenderWindow> renderWindow =
+		vtkSmartPointer<vtkRenderWindow>::New();
+
+	vtkSmartPointer<vtkRenderWindowInteractor> rwi = vtkSmartPointer<vtkRenderWindowInteractor>::New();
+	rwi->SetRenderWindow(renderWindow);
+
+
+	pDOS->SetExecuteMethod(&generateEllipse, pDOS);
+
+	vtkSmartPointer<vtkPolyDataMapper> mapper = vtkSmartPointer<vtkPolyDataMapper>::New();
+	mapper->SetInputConnection(pDOS->GetOutputPort());
+
+	vtkSmartPointer<vtkActor> actor = vtkSmartPointer<vtkActor>::New();
+	actor->SetMapper(mapper);
+	actor->GetProperty()->SetDiffuseColor(255, 255, 0);
+
+	renderWindow->AddRenderer(renderer);
+	renderer->AddActor(actor);
+	renderer->ResetCamera();
+
+	renderWindow->Render();
+
+	// Add Timer Event...
+	vtkSmartPointer<vtkCallbackCommand> timerCallback = vtkSmartPointer<vtkCallbackCommand>::New();
+	timerCallback->SetCallback(TimerCallbackFunction);
+
+	rwi->Initialize();
+	rwi->CreateRepeatingTimer(20);
+	rwi->AddObserver(vtkCommand::TimerEvent, timerCallback);
+
+
+	// Start Displaying...
+	rwi->Start();
+
+	return 0;
+}
